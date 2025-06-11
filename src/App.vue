@@ -1,47 +1,46 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { ref, onMounted } from 'vue';
+import { useStore } from 'vuex';
+
+import { getUserByEmail } from './api/users';
+import { getLocalStorage } from './utils/getLocalStorage';
+
+const store = useStore();
+const needLogin = ref(true);
+const gettingUser = async (email) => {
+  try {
+    const { data } = await getUserByEmail(email);
+
+    if (data.length !== 0) {
+      store.commit('setUserId', data[0].id);
+      needLogin.value = false;
+    } else {
+      needLogin.value = true;
+      store.commit('setUserId', null);
+    }
+  } catch (err) {
+    console.error('Failed to get user by email:', err);
+    needLogin.value = true;
+    store.commit('setUserId', null);
+  }
+};
+
+onMounted(() => {
+  const user = getLocalStorage('user');
+
+  if (user && user.email) {
+    gettingUser(user.email);
+  } else {
+    needLogin.value = true;
+    store.commit('setUserId', null);
+  }
+});
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <div id="app">
+    <router-view></router-view>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+<style></style>

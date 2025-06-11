@@ -1,6 +1,9 @@
-import './assets/main.css'
+import { createApp } from 'vue';
+import App from './App.vue';
+import store from './store/index';
+import router from './router/index';
 
-import { createApp } from 'vue'
-import App from './App.vue'
+import 'bulma/css/bulma.css';
+import '@fortawesome/fontawesome-free/css/all.css';
 
-createApp(App).mount('#app')
+createApp(App).use(store).use(router).mount('#app');
